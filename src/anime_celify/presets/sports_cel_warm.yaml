@@ -1,0 +1,41 @@
+name: sports_cel_warm
+description: slightly warmer 90s cel treatment with cleaner daylight handling and restrained grain
+processing:
+  smoothing_strength: 0.32
+  edge_strength: 0.64
+  line_thickness: 1.02
+  line_blue_shift: 0.02
+  posterize_luma_levels: 5
+  posterize_chroma_levels: 4
+  saturation_scale: 0.92
+  contrast_scale: 1.04
+  gamma: 1.00
+  shadow_crush: 0.05
+  highlight_rolloff: 0.05
+  midtone_shift_r: 0.02
+  midtone_shift_g: 0.01
+  midtone_shift_b: -0.01
+  halation_strength: 0.04
+  grain_strength: 0.02
+  temporal_blend: 0.08
+  optical_flow_consistency: 0.18
+  vignette_strength: 0.01
+  background_softness: 0.10
+  skin_protect_strength: 0.12
+  subtitle_protect_enabled: true
+  blur_radius: 0.9
+  skin_desaturate: 0.05
+  skin_gray_shift: 0.02
+  halation_radius: 1.4
+  emissive_mask_threshold: 0.82
+shot_profiles:
+  urban_night:
+    saturation_scale: -0.03
+    shadow_crush: 0.03
+    midtone_shift_b: 0.02
+  neutral_daylight:
+    saturation_scale: -0.01
+    highlight_rolloff: 0.01
+  bio_mech_glow:
+    halation_strength: 0.05
+    highlight_rolloff: 0.04

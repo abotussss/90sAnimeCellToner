@@ -1,0 +1,51 @@
+name: cyber_noir_95
+description: cold cyber-noir anime cel look with restrained saturation and selective halation
+processing:
+  smoothing_strength: 0.42
+  edge_strength: 0.68
+  line_thickness: 1.08
+  line_blue_shift: 0.08
+  posterize_luma_levels: 5
+  posterize_chroma_levels: 4
+  saturation_scale: 0.84
+  contrast_scale: 1.08
+  gamma: 0.96
+  shadow_crush: 0.10
+  highlight_rolloff: 0.07
+  midtone_shift_r: -0.01
+  midtone_shift_g: 0.01
+  midtone_shift_b: 0.05
+  halation_strength: 0.10
+  grain_strength: 0.03
+  temporal_blend: 0.12
+  optical_flow_consistency: 0.32
+  vignette_strength: 0.02
+  background_softness: 0.16
+  skin_protect_strength: 0.10
+  subtitle_protect_enabled: true
+  blur_radius: 1.2
+  skin_desaturate: 0.10
+  skin_gray_shift: 0.05
+  halation_radius: 2.0
+  emissive_mask_threshold: 0.78
+shot_profiles:
+  urban_night:
+    saturation_scale: -0.06
+    shadow_crush: 0.04
+    midtone_shift_g: 0.02
+    midtone_shift_b: 0.03
+    halation_strength: 0.03
+    background_softness: 0.04
+  neutral_daylight:
+    saturation_scale: -0.02
+    shadow_crush: -0.02
+    skin_gray_shift: 0.03
+    halation_strength: -0.04
+    background_softness: 0.01
+  bio_mech_glow:
+    highlight_rolloff: 0.08
+    halation_strength: 0.10
+    halation_radius: 1.2
+    contrast_scale: -0.06
+    gamma: 0.03
+
