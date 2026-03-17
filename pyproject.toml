@@ -28,6 +28,7 @@ dev = [
 
 [project.scripts]
 anime-celify = "anime_celify.cli:app"
+anime-celify-desktop = "anime_celify.desktop:run"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/anime_celify"]
@@ -35,4 +36,3 @@ packages = ["src/anime_celify"]
 [tool.pytest.ini_options]
 pythonpath = ["src"]
 testpaths = ["tests"]
-

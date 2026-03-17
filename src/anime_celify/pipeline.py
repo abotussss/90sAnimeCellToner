@@ -17,7 +17,7 @@ from anime_celify.models import (
     SuggestedConfig,
     TransformRunLog,
 )
-from anime_celify.processor.color import apply_cel_color_grade
+from anime_celify.processor.color import apply_cel_color_grade, apply_finish_grade
 from anime_celify.processor.edges import apply_line_emphasis, extract_edge_mask
 from anime_celify.processor.grain import apply_film_grain
 from anime_celify.processor.halation import apply_selective_halation
@@ -167,7 +167,8 @@ def _process_frame(
         strength=config.halation_strength,
         radius=config.halation_radius,
     )
-    vignetted = apply_vignette(halated, config.vignette_strength)
+    finished = apply_finish_grade(halated, config=config)
+    vignetted = apply_vignette(finished, config.vignette_strength)
     grained = apply_film_grain(vignetted, config.grain_strength, frame_index=frame_index)
 
     if config.subtitle_protect_enabled:
@@ -186,4 +187,3 @@ def _process_frame(
 def _write_run_log(run_log: TransformRunLog, log_path: Path) -> None:
     log_path.parent.mkdir(parents=True, exist_ok=True)
     log_path.write_text(json.dumps(run_log.model_dump(mode="json"), indent=2), encoding="utf-8")
-

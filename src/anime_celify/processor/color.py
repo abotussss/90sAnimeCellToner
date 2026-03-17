@@ -7,7 +7,7 @@ from anime_celify.models import ProcessingConfig
 from anime_celify.utils.image_ops import apply_gamma, mix, quantize_lab, smoothstep, to_float01
 
 
-def _adjust_saturation(frame_float: np.ndarray, saturation_scale: float) -> np.ndarray:
+def adjust_saturation(frame_float: np.ndarray, saturation_scale: float) -> np.ndarray:
     hsv = cv2.cvtColor((frame_float * 255.0).astype(np.uint8), cv2.COLOR_BGR2HSV).astype(np.float32) / 255.0
     hsv[..., 1] = np.clip(hsv[..., 1] * saturation_scale, 0.0, 1.0)
     return cv2.cvtColor((hsv * 255.0).astype(np.uint8), cv2.COLOR_HSV2BGR).astype(np.float32) / 255.0
@@ -21,7 +21,7 @@ def apply_cel_color_grade(
     original = to_float01(frame_bgr)
     frame = apply_gamma(original, config.gamma)
     frame = np.clip((frame - 0.5) * config.contrast_scale + 0.5, 0.0, 1.0)
-    frame = _adjust_saturation(frame, config.saturation_scale)
+    frame = adjust_saturation(frame, config.saturation_scale)
 
     luminance = np.dot(frame, np.array([0.114, 0.587, 0.299], dtype=np.float32))
     shadow_mask = 1.0 - smoothstep(0.08, 0.48, luminance)
@@ -48,3 +48,17 @@ def apply_cel_color_grade(
     frame = quantize_lab(frame, config.posterize_luma_levels or 5, config.posterize_chroma_levels or 4)
     return np.clip(frame, 0.0, 1.0)
 
+
+def apply_finish_grade(frame_float: np.ndarray, config: ProcessingConfig) -> np.ndarray:
+    final_saturation_scale = min(1.0, max(0.0, config.saturation_scale * 0.82))
+    frame = adjust_saturation(frame_float, final_saturation_scale)
+
+    luminance = np.dot(frame, np.array([0.114, 0.587, 0.299], dtype=np.float32))
+    midtone_mask = np.exp(-((luminance - 0.48) ** 2) / 0.055)
+    shadow_mask = 1.0 - smoothstep(0.06, 0.34, luminance)
+
+    frame[..., 0] = np.clip(frame[..., 0] + midtone_mask * config.midtone_shift_b * 0.30, 0.0, 1.0)
+    frame[..., 1] = np.clip(frame[..., 1] + midtone_mask * config.midtone_shift_g * 0.12, 0.0, 1.0)
+    frame[..., 2] = np.clip(frame[..., 2] + shadow_mask * config.midtone_shift_r * 0.08, 0.0, 1.0)
+
+    return np.clip(frame, 0.0, 1.0)

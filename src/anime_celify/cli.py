@@ -7,6 +7,7 @@ import typer
 import yaml
 
 from anime_celify.config import ConfigError, list_presets, resolve_preset, show_preset_yaml
+from anime_celify.desktop import launch_desktop_flow
 from anime_celify.pipeline import analyze_video, transform_video
 from anime_celify.probe import ProbeError
 from anime_celify.utils.logging import configure_logging
@@ -36,7 +37,10 @@ def transform(
     log_path: Path | None = typer.Option(None, "--log-path"),
 ) -> None:
     try:
-        preset_definition = resolve_preset(preset_name=preset, config_path=config)
+        preset_definition = resolve_preset(
+            preset_name=preset or ("cyber_noir_95" if config is None else None),
+            config_path=config,
+        )
         run_log = transform_video(
             input_path=input_path,
             output_path=output_path,
@@ -73,6 +77,34 @@ def analyze(
         typer.echo(f"Analysis written to {output_path}")
     else:
         typer.echo(yaml.safe_dump(payload, sort_keys=False, allow_unicode=False))
+
+
+@app.command("desktop")
+def desktop(
+    input_path: Path | None = typer.Option(None, "--input"),
+    output_path: Path | None = typer.Option(None, "--output", "-o"),
+    preset: str = typer.Option("cyber_noir_95", "--preset"),
+    config: Path | None = typer.Option(None, "--config"),
+    auto_tune: bool = typer.Option(True, "--auto-tune/--no-auto-tune"),
+    log_path: Path | None = typer.Option(None, "--log-path"),
+) -> None:
+    try:
+        run_log = launch_desktop_flow(
+            input_path=input_path,
+            output_path=output_path,
+            preset_name=preset,
+            config_path=config,
+            auto_tune=auto_tune,
+            log_path=log_path,
+        )
+    except (ConfigError, ProbeError, RuntimeError) as exc:
+        _handle_error(exc)
+        return
+
+    typer.echo(
+        f"Transformed {run_log.input_path.name} -> {run_log.output_path.name} using {run_log.preset_name}"
+        + (" with auto-tune." if run_log.auto_tune_enabled else ".")
+    )
 
 
 @presets_app.command("list")
