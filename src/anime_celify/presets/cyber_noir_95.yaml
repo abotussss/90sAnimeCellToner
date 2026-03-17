@@ -28,6 +28,10 @@ processing:
   skin_gray_shift: 0.08
   halation_radius: 2.2
   emissive_mask_threshold: 0.80
+  palette_mix_strength: 0.42
+  shadow_cool_tint: 0.38
+  highlight_warm_tint: 0.16
+  background_palette_strength: 0.34
 shot_profiles:
   urban_night:
     saturation_scale: -0.08
@@ -37,15 +41,22 @@ shot_profiles:
     line_blue_shift: 0.03
     halation_strength: 0.03
     background_softness: 0.05
+    palette_mix_strength: 0.10
+    shadow_cool_tint: 0.08
+    background_palette_strength: 0.10
   neutral_daylight:
     saturation_scale: -0.04
     shadow_crush: -0.03
     skin_gray_shift: 0.04
     halation_strength: -0.05
     background_softness: 0.01
+    palette_mix_strength: 0.04
+    highlight_warm_tint: 0.05
   bio_mech_glow:
     highlight_rolloff: 0.10
     halation_strength: 0.12
     halation_radius: 1.4
     contrast_scale: -0.08
     gamma: 0.04
+    palette_mix_strength: 0.06
+    highlight_warm_tint: 0.08

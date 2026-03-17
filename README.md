@@ -190,6 +190,10 @@ anime-celify desktop --input input.mp4 --output output.mp4 --auto-tune
 - `halation_strength`
 - `halation_radius`
 - `emissive_mask_threshold`
+- `palette_mix_strength`
+- `shadow_cool_tint`
+- `highlight_warm_tint`
+- `background_palette_strength`
 - `grain_strength`
 - `vignette_strength`
 - `background_softness`

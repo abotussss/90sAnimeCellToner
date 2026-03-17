@@ -37,6 +37,10 @@ class ProcessingConfig(BaseModel):
     skin_gray_shift: float = Field(default=0.05, ge=0.0, le=0.5)
     halation_radius: float = Field(default=2.0, ge=0.5, le=8.0)
     emissive_mask_threshold: float = Field(default=0.78, ge=0.0, le=1.0)
+    palette_mix_strength: float = Field(default=0.0, ge=0.0, le=1.0)
+    shadow_cool_tint: float = Field(default=0.0, ge=0.0, le=1.0)
+    highlight_warm_tint: float = Field(default=0.0, ge=0.0, le=1.0)
+    background_palette_strength: float = Field(default=0.0, ge=0.0, le=1.0)
 
     @model_validator(mode="after")
     def resolve_posterize_defaults(self) -> "ProcessingConfig":
@@ -82,6 +86,10 @@ class ProcessingAdjustment(BaseModel):
     skin_gray_shift: float | None = None
     halation_radius: float | None = None
     emissive_mask_threshold: float | None = None
+    palette_mix_strength: float | None = None
+    shadow_cool_tint: float | None = None
+    highlight_warm_tint: float | None = None
+    background_palette_strength: float | None = None
     subtitle_protect_enabled: bool | None = None
 
     def numeric_items(self) -> dict[str, float]:
@@ -174,4 +182,3 @@ class TransformRunLog(BaseModel):
     scenes: list[SceneConfigAssignment]
     warnings: list[str] = Field(default_factory=list)
     notes: dict[str, Any] = Field(default_factory=dict)
-

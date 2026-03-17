@@ -154,7 +154,12 @@ def _process_frame(
 
     smoothed = apply_edge_preserving_smoothing(frame_bgr, config.smoothing_strength)
     softened = apply_background_softness(smoothed, foreground_mask, softness=config.background_softness, blur_radius=config.blur_radius)
-    graded = apply_cel_color_grade(softened, config=config, skin_mask=skin_mask)
+    graded = apply_cel_color_grade(
+        softened,
+        config=config,
+        skin_mask=skin_mask,
+        foreground_mask=foreground_mask,
+    )
     lined = apply_line_emphasis(graded, edge_mask=edge_mask, edge_strength=config.edge_strength, blue_shift=config.line_blue_shift)
 
     if config.blur_radius > 0.0:
