@@ -101,9 +101,10 @@ def _extract_features(frame_bgr: np.ndarray) -> dict[str, float]:
 
 def _classify_scene(features: dict[str, float]) -> str:
     if (
-        features["highlight_ratio"] > 0.14
-        and features["low_sat_bright_ratio"] > 0.12
+        features["highlight_ratio"] > 0.20
+        and features["low_sat_bright_ratio"] > 0.20
         and features["dark_ratio"] > 0.18
+        and features["saturation"] < 0.30
     ):
         return "bio_mech_glow"
     if features["brightness"] < 0.42 and features["cool_ratio"] > 0.28:
@@ -122,10 +123,12 @@ def _build_adjustment(
         base_data = preset_profile.model_dump(exclude_none=True)
 
     if shot_profile == "urban_night":
+        base_data["line_blue_shift"] = float(base_data.get("line_blue_shift", 0.0)) + 0.02
         if features["small_glow_ratio"] > 0.04:
             base_data["halation_strength"] = float(base_data.get("halation_strength", 0.0)) + 0.02
         if features["cool_ratio"] > 0.45:
             base_data["midtone_shift_b"] = float(base_data.get("midtone_shift_b", 0.0)) + 0.01
+            base_data["saturation_scale"] = float(base_data.get("saturation_scale", 0.0)) - 0.02
     elif shot_profile == "neutral_daylight":
         if features["skin_ratio"] > 0.10:
             base_data["skin_gray_shift"] = float(base_data.get("skin_gray_shift", 0.0)) + 0.02
@@ -140,4 +143,3 @@ def _build_adjustment(
         base_data["subtitle_protect_enabled"] = True
 
     return ProcessingAdjustment.model_validate(base_data)
-

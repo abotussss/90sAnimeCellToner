@@ -42,8 +42,10 @@ def estimate_emissive_mask(frame_bgr: np.ndarray, threshold: float) -> np.ndarra
     luminance = np.dot(frame_float, np.array([0.114, 0.587, 0.299], dtype=np.float32))
     value = hsv[..., 2]
     saturation = hsv[..., 1]
+    local_luminance = cv2.GaussianBlur(luminance, (0, 0), 5.0)
     bright_mask = (luminance > threshold) & (value > threshold)
-    emissive = bright_mask & ((saturation > 0.12) | (luminance > 0.88))
+    contrast_peak = luminance > (local_luminance + 0.045)
+    emissive = bright_mask & (contrast_peak | ((saturation > 0.16) & (luminance > threshold + 0.04)))
     return blend_mask(emissive.astype(np.float32), blur_sigma=3.0)
 
 
@@ -57,4 +59,3 @@ def estimate_foreground_mask(
     local_edges = cv2.GaussianBlur(edge_mask, (0, 0), 6.0)
     foreground = 0.45 * local_edges + 0.40 * skin_mask + 0.25 * center_weight
     return np.clip(foreground, 0.0, 1.0)
-

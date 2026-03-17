@@ -13,6 +13,19 @@ def adjust_saturation(frame_float: np.ndarray, saturation_scale: float) -> np.nd
     return cv2.cvtColor((hsv * 255.0).astype(np.uint8), cv2.COLOR_HSV2BGR).astype(np.float32) / 255.0
 
 
+def _apply_shadow_partition(frame_float: np.ndarray, shadow_crush: float) -> np.ndarray:
+    luminance = np.dot(frame_float, np.array([0.114, 0.587, 0.299], dtype=np.float32))
+    thresholds = np.array([0.16, 0.34, 0.54, 0.76], dtype=np.float32)
+    levels = np.array([0.09, 0.23, 0.40, 0.60, 0.84], dtype=np.float32)
+    indices = np.digitize(luminance, thresholds)
+    target_luminance = levels[indices]
+    scale = target_luminance / np.maximum(luminance, 1e-4)
+    cel_partitioned = np.clip(frame_float * scale[..., None], 0.0, 1.0)
+    shadow_mid_mask = 1.0 - smoothstep(0.72, 0.92, luminance)
+    amount = np.clip(0.20 + shadow_crush * 1.6, 0.18, 0.48)
+    return mix(frame_float, cel_partitioned, shadow_mid_mask[..., None] * amount)
+
+
 def apply_cel_color_grade(
     frame_bgr: np.ndarray,
     config: ProcessingConfig,
@@ -35,6 +48,7 @@ def apply_cel_color_grade(
     frame[..., 0] = np.clip(frame[..., 0] + midtone_mask * config.midtone_shift_b, 0.0, 1.0)
     frame[..., 1] = np.clip(frame[..., 1] + midtone_mask * config.midtone_shift_g, 0.0, 1.0)
     frame[..., 2] = np.clip(frame[..., 2] + midtone_mask * config.midtone_shift_r, 0.0, 1.0)
+    frame = _apply_shadow_partition(frame, config.shadow_crush)
 
     grayscale = np.repeat(luminance[..., None], 3, axis=2)
     if config.skin_desaturate > 0.0:
@@ -50,15 +64,17 @@ def apply_cel_color_grade(
 
 
 def apply_finish_grade(frame_float: np.ndarray, config: ProcessingConfig) -> np.ndarray:
-    final_saturation_scale = min(1.0, max(0.0, config.saturation_scale * 0.82))
+    final_saturation_scale = min(1.0, max(0.0, config.saturation_scale * 0.76))
     frame = adjust_saturation(frame_float, final_saturation_scale)
 
     luminance = np.dot(frame, np.array([0.114, 0.587, 0.299], dtype=np.float32))
     midtone_mask = np.exp(-((luminance - 0.48) ** 2) / 0.055)
     shadow_mask = 1.0 - smoothstep(0.06, 0.34, luminance)
+    highlight_mask = smoothstep(0.70, 0.95, luminance)
 
-    frame[..., 0] = np.clip(frame[..., 0] + midtone_mask * config.midtone_shift_b * 0.30, 0.0, 1.0)
-    frame[..., 1] = np.clip(frame[..., 1] + midtone_mask * config.midtone_shift_g * 0.12, 0.0, 1.0)
-    frame[..., 2] = np.clip(frame[..., 2] + shadow_mask * config.midtone_shift_r * 0.08, 0.0, 1.0)
+    frame[..., 0] = np.clip(frame[..., 0] + midtone_mask * config.midtone_shift_b * 0.34, 0.0, 1.0)
+    frame[..., 1] = np.clip(frame[..., 1] + midtone_mask * config.midtone_shift_g * 0.14, 0.0, 1.0)
+    frame[..., 2] = np.clip(frame[..., 2] + shadow_mask * config.midtone_shift_r * 0.14, 0.0, 1.0)
+    frame = frame - np.maximum(frame - 0.80, 0.0) * config.highlight_rolloff * highlight_mask[..., None] * 0.75
 
     return np.clip(frame, 0.0, 1.0)

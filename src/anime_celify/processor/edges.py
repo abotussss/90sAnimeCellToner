@@ -29,5 +29,5 @@ def apply_line_emphasis(
         return frame_float
     line_color = blue_black_color(blue_shift).reshape(1, 1, 3)
     amount = np.clip(edge_mask[..., None] * edge_strength * 0.62, 0.0, 0.78)
-    return mix(frame_float, np.broadcast_to(line_color, frame_float.shape), amount)
-
+    line_target = np.minimum(frame_float * 0.35 + np.broadcast_to(line_color, frame_float.shape) * 0.65, frame_float)
+    return mix(frame_float, line_target, amount)
